@@ -2,7 +2,6 @@
 const $ = (id)=>document.getElementById(id);
 const toast = (msg, ms=1800)=>{ const t=$('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none', ms); };
 const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-const round = (v)=>Math.round(v);
 const interp=(x,x0,x1,y0,y1)=>y0 + ((x-x0)/(x1-x0))*(y1-y0);
 const good = (x)=>x!=null && !isNaN(x);
 
@@ -17,19 +16,10 @@ const BP = {
 };
 
 /* ========= WQI building blocks ========= */
-function wqiFromBreakpoints(cp, thresholds){
-  if (cp==null || isNaN(cp)) return null;
-  const q=[100,75,50,25,10];
-  if (cp <= thresholds[0]) return 100;
-  for (let i=1;i<thresholds.length;i++){
-    if (cp <= thresholds[i]){
-      const [x0,x1]=[thresholds[i-1], thresholds[i]];
-      const [y0,y1]=[q[i-1], q[i]];
-      return y0 + ( (cp-x0)/(x1-x0) )*(y1-y0);
-    }
-  }
-  return 10;
-}
+function wqiFromBreakpoints(cp, t){ if (cp==null||isNaN(cp)) return null;
+  const q=[100,75,50,25,10]; if (cp<=t[0]) return 100;
+  for (let i=1;i<t.length;i++){ if (cp<=t[i]){ const [x0,x1]=[t[i-1],t[i]], [y0,y1]=[q[i-1],q[i]];
+    return y0 + ((cp-x0)/(x1-x0))*(y1-y0);} } return 10; }
 function wqiGroupIV(param, cp){
   switch(param){
     case 'BOD': return wqiFromBreakpoints(cp, BP.BOD);
@@ -41,64 +31,140 @@ function wqiGroupIV(param, cp){
     case 'PO4': return wqiFromBreakpoints(cp, BP.PO4);
   }
 }
-function wqiMetal(name, cp){
-  const map = {As:BP.As,Cd:BP.Cd,Pb:BP.Pb,Cr6:BP.Cr6,Cu:BP.Cu,Zn:BP.Zn,Hg:BP.Hg}[name];
-  if (!map) return null;
-  return wqiFromBreakpoints(cp, map);
-}
-function wqiPesticide(name, val){
-  if (val==null || isNaN(val)) return null;
-  const lim = {Aldrin:BP.Aldrin,BHC:BP.BHC,Dieldrin:BP.Dieldrin,DDTs:BP.DDTs,Hept:BP.Hept}[name];
-  return (val<=lim)?100:10;
-}
-function wqiDO(doMgL, tempC){
-  if (!good(doMgL) || !good(tempC)) return null;
+function wqiMetal(name, cp){ const map={As:BP.As,Cd:BP.Cd,Pb:BP.Pb,Cr6:BP.Cr6,Cu:BP.Cu,Zn:BP.Zn,Hg:BP.Hg}[name]; return map? wqiFromBreakpoints(cp,map) : null; }
+function wqiPesticide(name,val){ if (val==null||isNaN(val)) return null; const lim={Aldrin:BP.Aldrin,BHC:BP.BHC,Dieldrin:BP.Dieldrin,DDTs:BP.DDTs,Hept:BP.Hept}[name]; return (val<=lim)?100:10; }
+function wqiDO(doMgL,tempC){ if(!good(doMgL)||!good(tempC)) return null;
   const DOsat = 14.652 - 0.41022*tempC + 0.0079910*tempC*tempC - 0.000077774*tempC*tempC*tempC;
   const DOpct = (doMgL/DOsat)*100;
-  let w;
-  if (DOpct < 20 || DOpct > 200) w=10;
-  else if (DOpct < 88) w = interp(DOpct,20,88,25,100);
-  else if (DOpct <= 112) w = 100;
-  else w = interp(DOpct,112,200,100,25);
-  return {WQI:w, DOsat, DOpct};
-}
-function wqiPH(ph){
-  if (!good(ph)) return null;
-  if (ph < 5.5 || ph > 9) return 10;
-  if (ph < 6) return interp(ph,5.5,6,50,100);
-  if (ph <= 8.5) return 100;
-  return interp(ph,8.5,9,100,50);
-}
+  let w; if (DOpct<20||DOpct>200) w=10; else if (DOpct<88) w=interp(DOpct,20,88,25,100); else if (DOpct<=112) w=100; else w=interp(DOpct,112,200,100,25);
+  return {WQI:w,DOsat,DOpct}; }
+function wqiPH(ph){ if(!good(ph)) return null; if (ph<5.5||ph>9) return 10; if (ph<6) return interp(ph,5.5,6,50,100); if (ph<=8.5) return 100; return interp(ph,8.5,9,100,50); }
 function aggregateWQI({wqiI, arrII, arrIII, arrIV, arrV, weighted=false}){
-  const mult = (arr)=>arr.reduce((a,b)=>a*b,1);
-  const mean = (arr)=>arr.reduce((a,b)=>a+b,0)/arr.length;
-
+  const mult = (a)=>a.reduce((x,y)=>x*y,1), mean=(a)=>a.reduce((x,y)=>x+y,0)/a.length;
   const fI = (wqiI!=null)? (wqiI/100) : 1;
-  const II = arrII.filter(good), III = arrIII.filter(good), IV = arrIV.filter(good), V = arrV.filter(good);
-
-  if (!IV.length) return {WQI:null, reason:"Thiếu nhóm IV (bắt buộc)"};
-
+  const II=arrII.filter(good), III=arrIII.filter(good), IV=arrIV.filter(good), V=arrV.filter(good);
+  if (!IV.length) return {WQI:null};
   const fII = II.length? Math.pow(mult(II.map(v=>v/100)), 1/II.length) : 1;
   const fIII= III.length? Math.pow(mult(III.map(v=>v/100)), 1/III.length) : 1;
-
-  if (V.length){
-    const avgIV = mean(IV), avgV = mean(V);
-    const core = weighted ? Math.pow((Math.pow(avgIV,2)*avgV), 1/3) : Math.sqrt(avgIV*avgV);
-    return {WQI: Math.round(clamp(100 * fI * fII * fIII * (core/100), 0, 100))};
-  } else {
-    const avgIV = mean(IV);
-    return {WQI: Math.round(clamp(100 * fI * fII * fIII * (avgIV/100), 0, 100))};
-  }
+  const avgIV = mean(IV); let core = avgIV;
+  if (V.length){ const avgV = mean(V); core = weighted ? Math.pow((Math.pow(avgIV,2)*avgV), 1/3) : Math.sqrt(avgIV*avgV); }
+  return {WQI: Math.round(clamp(100*fI*fII*fIII*(core/100),0,100))};
 }
 function classify(wqi){
-  if (wqi==null) return {label:"–", color:"#e8eef7", fg:"#0b1220"}; // mặc định: chữ sáng
+  if (wqi==null) return {label:"–", color:"#e8eef7"};
   const gs=getComputedStyle(document.documentElement);
-  if (wqi>=91) return {label:"Rất tốt", color:gs.getPropertyValue('--sea').trim(), fg:"#fff"};
-  if (wqi>=76) return {label:"Tốt", color:gs.getPropertyValue('--green').trim(), fg:"#0f1729"};
-  if (wqi>=51) return {label:"Trung bình", color:gs.getPropertyValue('--yellow').trim(), fg:"#0f1729"};
-  if (wqi>=26) return {label:"Xấu", color:gs.getPropertyValue('--orange').trim(), fg:"#0f1729"};
-  if (wqi>=10) return {label:"Kém", color:gs.getPropertyValue('--red').trim(), fg:"#fff"};
-  return {label:"Ô nhiễm rất nặng", color:gs.getPropertyValue('--brown').trim(), fg:"#fff"};
+  if (wqi>=91) return {label:"Rất tốt", color:gs.getPropertyValue('--sea').trim()};
+  if (wqi>=76) return {label:"Tốt", color:gs.getPropertyValue('--green').trim()};
+  if (wqi>=51) return {label:"Trung bình", color:gs.getPropertyValue('--yellow').trim()};
+  if (wqi>=26) return {label:"Xấu", color:gs.getPropertyValue('--orange').trim()};
+  if (wqi>=10) return {label:"Kém", color:gs.getPropertyValue('--red').trim()};
+  return {label:"Ô nhiễm rất nặng", color:gs.getPropertyValue('--brown').trim()};
+}
+
+/* ========= Explain helpers ========= */
+const fmt = (v,d=3)=> (v==null||isNaN(v)) ? '–' : Number(v).toFixed(d);
+function gm(arr){ return Math.pow(arr.reduce((a,b)=>a*b,1), 1/arr.length); }
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+
+function explainBreakpointsRow(name, val, thresholds){
+  if (val==null || isNaN(val)) return [name, 'Chưa nhập.'];
+  const q=[100,75,50,25,10];
+  if (val <= thresholds[0]) return [name, `\\( ${val} \\le ${thresholds[0]} \\Rightarrow \\text{WQI} = 100 \\)`];
+  for (let i=1;i<thresholds.length;i++){
+    const x0=thresholds[i-1], x1=thresholds[i];
+    if (val <= x1){
+      const y0=q[i-1], y1=q[i];
+      const w = y0 + ((val-x0)/(x1-x0))*(y1-y0);
+      return [name, `\\( ${x0} < ${val} \\le ${x1} \\Rightarrow \\text{WQI} \\approx ${fmt(w,1)} \\) (nội suy tuyến tính giữa \\((${x0}\\to${y0}),(${x1}\\to${y1})\\))`];
+    }
+  }
+  return [name, `\\( ${val} > ${thresholds[thresholds.length-1]} \\Rightarrow \\text{WQI} = 10 \\)`];
+}
+
+function buildExplanation(ctx){
+  const rows = [];
+  // pH
+  if (ctx.ph!=null && !isNaN(ctx.ph)){
+    let desc = '';
+    if (ctx.ph<5.5||ctx.ph>9) desc = `\\(\\text{pH}=${ctx.ph}\\notin[5.5,9] \\Rightarrow \\text{WQI}_{pH}=10\\)`;
+    else if (ctx.ph<6) desc = `\\(5.5<${ctx.ph}\\le 6\\Rightarrow \\text{nội suy } (5.5\\to50),(6\\to100) \\Rightarrow \\text{WQI}_{pH}\\approx ${fmt(ctx.wqi_pH,1)}\\)`;
+    else if (ctx.ph<=8.5) desc = `\\(6\\le ${ctx.ph}\\le 8.5 \\Rightarrow \\text{WQI}_{pH}=100\\)`;
+    else desc = `\\(8.5<${ctx.ph}\\le 9\\Rightarrow \\text{nội suy } (8.5\\to100),(9\\to50) \\Rightarrow \\text{WQI}_{pH}\\approx ${fmt(ctx.wqi_pH,1)}\\)`;
+    rows.push(['pH', desc]);
+  } else {
+    rows.push(['pH', 'Chưa nhập.']);
+  }
+
+  // DO
+  if (ctx.doRes){
+    rows.push([
+      'DO bão hòa',
+      `\\(\\text{DO}_{sat}=14.652-0.41022T+0.0079910T^2-7.7774\\times10^{-5}T^3\\) với \\(T=${ctx.tempC}\\,^\\circ\\mathrm{C}\\) \\(\\Rightarrow \\text{DO}_{sat}\\approx ${fmt(ctx.doRes.DOsat,3)}\\,\\mathrm{mg/L}\\)`
+    ]);
+    rows.push([
+      'DO%',
+      `\\(\\text{DO}\\% = \\dfrac{\\text{DO đo}}{\\text{DO}_{sat}}\\times 100 = \\dfrac{${ctx.doMgL}}{${fmt(ctx.doRes.DOsat,3)}}\\times100 \\approx ${fmt(ctx.doRes.DOpct,1)}\\%\\) ⇒ \\(\\text{WQI}_{DO}\\approx ${fmt(ctx.WQI_DO,1)}\\)`
+    ]);
+  } else {
+    rows.push(['DO', 'Chưa đủ dữ liệu (cần DO mg/L và T °C).']);
+  }
+
+  // IV others
+  rows.push(...[
+    explainBreakpointsRow('BOD₅', ctx.BOD, BP.BOD),
+    explainBreakpointsRow('COD', ctx.COD, BP.COD),
+    ...(ctx.TOC!=null?[explainBreakpointsRow('TOC', ctx.TOC, BP.TOC)]:[]),
+    explainBreakpointsRow('N–NH₄', ctx.NH4, BP.NH4),
+    ...(ctx.NO3!=null?[explainBreakpointsRow('N–NO₃', ctx.NO3, BP.NO3)]:[]),
+    ...(ctx.NO2!=null?['N–NO₂', `\\(${ctx.NO2} ${ctx.NO2<=BP.NO2_only?'\\le':'>'} ${BP.NO2_only}\\Rightarrow \\text{WQI}\\approx ${fmt(ctx.WQI_NO2,1)}\\)`]:[]),
+    explainBreakpointsRow('P–PO₄', ctx.PO4, BP.PO4),
+  ].filter(Boolean));
+
+  // II pesticides
+  function pest(name, val, lim){ if (val==null||isNaN(val)) return null;
+    return [name, `\\(${val} ${val<=lim?'\\le':'>'} ${lim} \\Rightarrow \\text{WQI}=${val<=lim?100:10}\\)`]; }
+  [['Aldrin',ctx.aldrin,BP.Aldrin],['BHC',ctx.bhc,BP.BHC],['Dieldrin',ctx.dieldrin,BP.Dieldrin],['Tổng DDTₛ',ctx.ddts,BP.DDTs],['Heptachlor & epoxide',ctx.hept,BP.Hept]]
+    .forEach(([n,v,l])=>{ const r=pest(n,v,l); if(r) rows.push(r); });
+
+  // III metals
+  const metals=[['As',ctx.as,BP.As],['Cd',ctx.cd,BP.Cd],['Pb',ctx.pb,BP.Pb],['Cr⁶⁺',ctx.cr6,BP.Cr6],['Cu',ctx.cu,BP.Cu],['Zn',ctx.zn,BP.Zn],['Hg',ctx.hg,BP.Hg]];
+  metals.forEach(([n,v,t])=>{ if(v!=null&&!isNaN(v)) rows.push(explainBreakpointsRow(n,v,t)); });
+
+  // V
+  if (ctx.coli!=null) rows.push(explainBreakpointsRow('Coliform (MPN/100mL)', ctx.coli, BP.Coli));
+  if (ctx.ecoli!=null) rows.push(explainBreakpointsRow('E. coli (MPN/100mL)', ctx.ecoli, BP.Ecoli));
+
+  // Aggregation
+  const fI = ctx.wqi_pH!=null? (ctx.wqi_pH/100) : 1;
+  const gmII = ctx.presentII.length? gm(ctx.presentII) : 100;
+  const gmIII= ctx.presentIII.length? gm(ctx.presentIII) : 100;
+  const mIV  = ctx.presentIV.length? mean(ctx.presentIV): null;
+  const mV   = ctx.presentV.length? mean(ctx.presentV) : null;
+
+  rows.push(['Tổng hợp',
+    mIV==null
+      ? 'Thiếu Nhóm IV ⇒ không thể công bố VN_WQI.'
+      : (ctx.presentV.length
+         ? (ctx.weighted
+            ? `\\(\\text{core}=(\\text{IV}^2\\cdot\\text{V})^{1/3}=( ${fmt(mIV,2)}^2\\cdot${fmt(mV,2)} )^{1/3}\\)`
+            : `\\(\\text{core}=\\sqrt{\\text{IV}\\cdot\\text{V}}=\\sqrt{${fmt(mIV,2)}\\cdot${fmt(mV,2)}}\\)`)
+         : `\\(\\text{core}={\\text{IV}}=${fmt(mIV,2)}\\)` )
+  ]);
+
+  rows.push(['Công thức cuối',
+    mIV==null ? '—' :
+    `\\(\\text{VN\\_WQI}=100\\times f_I \\times f_{II} \\times f_{III} \\times \\dfrac{\\text{core}}{100}\\) với \\(f_I=${fmt(fI,4)}\\), \\(f_{II}=${fmt(gmII/100,4)}\\), \\(f_{III}=${fmt(gmIII/100,4)}\\) ⇒ \\(\\approx ${ctx.aggWQI==null?'—':ctx.aggWQI}\\)`
+  ]);
+
+  // Build HTML table
+  const html = `
+    <table class="explain-table">
+      <thead><tr><th>Mục</th><th>Diễn giải / Công thức</th></tr></thead>
+      <tbody>
+        ${rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  return html;
 }
 
 /* ========= Form helpers ========= */
@@ -117,9 +183,9 @@ function writeForm(data){
     else { $('#'+id).value = data[id]; }
   });
 }
+function val(id){ const el=$(id); const v=parseFloat(el.value); return isNaN(v)?null:v; }
 
 /* ========= Calculate & render ========= */
-function val(id){ const el=$(id); const v=parseFloat(el.value); return isNaN(v)?null:v; }
 function calc(){
   const weighted = $('weighted').checked;
 
@@ -165,30 +231,43 @@ function calc(){
   $('warnings').classList.toggle('show', warn.length>0);
   $('warnings').innerHTML = warn.map(w=>`<div>⚠ ${w}</div>`).join("");
 
-  // Output (KHÔNG nền, chỉ đổi màu chữ + căn giữa đã ở CSS)
+  // Output
   const score = agg.WQI; const cls = classify(score);
   $('score').textContent = score==null?"–":score;
   $('label').textContent = `Mức chất lượng: ${cls.label}`;
-  $('score').style.background = 'transparent';
-  $('label').style.background = 'transparent';
-  $('score').style.color = cls.color;
-  $('label').style.color = cls.color;
+  $('score').style.color = cls.color; $('label').style.color = cls.color;
+  const sticky = $('stickySummary'); sticky.textContent = `VN_WQI: ${score==null?"–":score} · ${cls.label}`; sticky.style.color = cls.color;
 
-  // Thanh sticky trên header: đổi màu chữ theo kết quả cho đồng bộ
-  const sticky = $('stickySummary');
-  sticky.textContent = `VN_WQI: ${score==null?"–":score} · ${cls.label}`;
-  sticky.style.color = cls.color;
-
-  // Details table
+  // Details (bảng phụ)
   const rows=[]; const add=(k,v)=>rows.push(`<tr><td>${k}</td><td>${v==null?"–":(+v).toFixed(1)}</td></tr>`);
   rows.push(`<tr><th colspan="2">Nhóm I</th></tr>`); add("pH → WQI_pH", wqi_pH);
   rows.push(`<tr><th colspan="2">Nhóm II (GM)</th></tr>`); add("Aldrin",WQI_Ald); add("BHC",WQI_BHC); add("Dieldrin",WQI_Die); add("DDTₛ",WQI_DDT); add("Heptachlor",WQI_Hep);
   rows.push(`<tr><th colspan="2">Nhóm III (GM)</th></tr>`); add("As",WQI_As); add("Cd",WQI_Cd); add("Pb",WQI_Pb); add("Cr⁶⁺",WQI_Cr6); add("Cu",WQI_Cu); add("Zn",WQI_Zn); add("Hg",WQI_Hg);
   rows.push(`<tr><th colspan="2">Nhóm IV (TB)</th></tr>`);
-  if (doRes) rows.push(`<tr><td>DO% bão hòa</td><td>${doRes.DOpct.toFixed(1)}% (DO_bão_hòa=${doRes.DOsat.toFixed(2)} mg/L)</td></tr>`);
+  if (doRes) rows.push(`<tr><td>DO% bão hòa</td><td>${doRes.DOpct.toFixed(1)}% (DO_sat=${doRes.DOsat.toFixed(2)} mg/L)</td></tr>`);
   add("WQI_DO",WQI_DO); add("BOD₅",WQI_BOD); add("COD",WQI_COD); add("TOC",WQI_TOC); add("N–NH₄",WQI_NH4); add("N–NO₃",WQI_NO3); add("N–NO₂",WQI_NO2); add("P–PO₄",WQI_PO4);
   rows.push(`<tr><th colspan="2">Nhóm V (TB)</th></tr>`); add("Coliform",WQI_Coli); add("E. coli",WQI_Ecoli);
   $('detail').innerHTML = `<table><thead><tr><th>Thông số</th><th>WQI</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+
+  // Explain table with LaTeX
+  const presentII = [WQI_Ald,WQI_BHC,WQI_Die,WQI_DDT,WQI_Hep].filter(good);
+  const presentIII= [WQI_As,WQI_Cd,WQI_Pb,WQI_Cr6,WQI_Cu,WQI_Zn,WQI_Hg].filter(good);
+  const presentIV = [WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4].filter(good);
+  const presentV  = [WQI_Coli,WQI_Ecoli].filter(good);
+
+  const explanationHTML = buildExplanation({
+    ph: val('ph'), wqi_pH,
+    doMgL: val('do'), tempC: val('temp'), doRes, WQI_DO,
+    BOD:val('bod'), COD:val('cod'), TOC:val('toc'), NH4:val('nh4'), NO3:val('no3'), NO2:val('no2'), PO4:val('po4'),
+    WQI_NO2,
+    aldrin:val('aldrin'), bhc:val('bhc'), dieldrin:val('dieldrin'), ddts:val('ddts'), hept:val('hept'),
+    as:val('as'), cd:val('cd'), pb:val('pb'), cr6:val('cr6'), cu:val('cu'), zn:val('zn'), hg:val('hg'),
+    coli:val('coli'), ecoli:val('ecoli'),
+    presentII, presentIII, presentIV, presentV, weighted,
+    aggWQI: score
+  });
+  $('explain').innerHTML = explanationHTML;
+  if (window.MathJax && window.MathJax.typesetPromise) MathJax.typesetPromise();
 
   toast(score==null ? "Thiếu dữ liệu Nhóm IV" : "Đã tính xong VN_WQI");
 }
@@ -199,19 +278,15 @@ $('clear').addEventListener('click', ()=>{
   document.querySelectorAll('input[type="number"]').forEach(i=>i.value="");
   $('weighted').checked=false; $('warnings').classList.remove('show'); $('warnings').innerHTML="";
   $('score').textContent="–"; $('label').textContent="Mức chất lượng: –";
-  // không nền, set lại màu chữ mặc định
-  $('score').style.background='transparent';
-  $('label').style.background='transparent';
-  $('score').style.color='#e8eef7';
-  $('label').style.color='#e8eef7';
+  $('score').style.color='#e8eef7'; $('label').style.color='#e8eef7';
   $('detail').innerHTML="";
-  const sticky = $('stickySummary'); sticky.textContent="VN_WQI: – · Mức: –"; sticky.style.color='#b9c8de';
+  $('explain').innerHTML='Nhập số liệu và bấm “Tính VN_WQI”…';
+  const sticky=$('stickySummary'); sticky.textContent="VN_WQI: – · Mức: –"; sticky.style.color='#b9c8de';
   toast("Đã xóa số liệu");
 });
-// Ctrl/Cmd+Enter to calc
 document.addEventListener('keydown', (e)=>{ if (e.key==='Enter' && (e.metaKey||e.ctrlKey)) calc(); });
 
-/* ========= Save / Load datasets ========= */
+/* ========= Save / Load ========= */
 const KEY='vnwqi:datasets';
 function loadAll(){ try{ return JSON.parse(localStorage.getItem(KEY)||"{}"); }catch{return{}} }
 function saveAll(obj){ localStorage.setItem(KEY, JSON.stringify(obj)); }
@@ -249,10 +324,8 @@ function exportCSV(){
   Object.entries(data).forEach(([k,v])=> rows.push([k, v==null?"":v]));
   const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  const name=$('datasetName').value.trim() || "vnwqi_dataset";
-  a.download=`${name}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  const name=$('datasetName').value.trim() || "vnwqi_dataset"; a.download=`${name}.csv`; a.click(); URL.revokeObjectURL(a.href);
 }
 $('exportCsvBtn').addEventListener('click', exportCSV);
 $('exportPdfBtn').addEventListener('click', ()=>window.print());
@@ -261,15 +334,11 @@ $('exportPdfBtn').addEventListener('click', ()=>window.print());
 const panel=$('resultPanel'), toggle=$('toggleSheet');
 function applySheetMode(){
   const isMobile = window.matchMedia('(max-width: 860px)').matches;
-  panel.classList.toggle('min', isMobile); // mặc định thu gọn trên mobile
+  panel.classList.toggle('min', isMobile);
   toggle.textContent = isMobile ? 'Mở rộng' : 'Thu gọn';
 }
-applySheetMode();
-window.addEventListener('resize', applySheetMode);
-toggle.addEventListener('click', ()=>{
-  const isMin = panel.classList.toggle('min');
-  toggle.textContent = isMin ? 'Mở rộng' : 'Thu gọn';
-});
+applySheetMode(); window.addEventListener('resize', applySheetMode);
+toggle.addEventListener('click', ()=>{ const isMin=panel.classList.toggle('min'); toggle.textContent=isMin?'Mở rộng':'Thu gọn'; });
 
 /* ========= PWA ========= */
 if ('serviceWorker' in navigator){

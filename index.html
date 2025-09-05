@@ -9,6 +9,14 @@
   <link rel="icon" href="icon-192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
+  <!-- MathJax v3 for LaTeX -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
   <header class="site-header">
@@ -18,7 +26,7 @@
           <div class="logo">💧</div>
           <div>
             <h1>VN_WQI – Chỉ số chất lượng nước (QĐ 1460)</h1>
-            <p class="subtitle">Nền đen · Responsive · Lưu/Khôi phục · Xuất CSV/PDF · PWA</p>
+            <p class="subtitle">Dark · Responsive · Sticky Results · Lưu/Khôi phục · CSV/PDF · PWA · LaTeX</p>
           </div>
         </div>
         <div class="pill" id="stickySummary">VN_WQI: – · Mức: –</div>
@@ -39,10 +47,9 @@
         <button class="btn secondary" id="exportCsvBtn">Xuất CSV</button>
         <button class="btn secondary" id="exportPdfBtn">Xuất PDF</button>
       </div>
-      <p class="hint">Để công bố chính thức: cần ≥3/5 nhóm, bắt buộc có Nhóm IV và trong Nhóm IV ≥3 thông số.</p>
+      <p class="hint">Công bố chính thức: cần ≥3/5 nhóm, bắt buộc có Nhóm IV và trong Nhóm IV ≥3 thông số.</p>
     </section>
 
-    <!-- Layout: main form + sticky results -->
     <div class="layout">
       <div class="main-form">
         <!-- Nhóm I -->
@@ -118,6 +125,15 @@
             <button id="calc" class="btn">Tính VN_WQI</button>
             <button id="clear" class="btn secondary" type="button">Xóa số liệu</button>
           </div>
+        </section>
+
+        <!-- Giải thích & công thức -->
+        <section class="card" id="explainCard">
+          <div class="group-title">
+            <h2>Giải thích &amp; công thức</h2>
+            <span class="pill">Tự động cập nhật sau khi tính</span>
+          </div>
+          <div id="explain" class="explain">Nhập số liệu và bấm “Tính VN_WQI”…</div>
         </section>
       </div>
 

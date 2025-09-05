@@ -58,24 +58,9 @@ input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-in
 .warnings.show{display:block}
 
 /* === Kết quả: căn giữa + KHÔNG nền === */
-.score-wrap{
-  display:grid;
-  gap:8px;
-  justify-items:center;   /* căn giữa ngang */
-  text-align:center;      /* căn giữa text */
-  margin-bottom:10px;
-}
-.score{
-  font-size:var(--fs-3xl);
-  font-weight:900;
-  line-height:1;
-  background:transparent !important;  /* bỏ tone nền */
-}
-.label{
-  font-size:var(--fs-md);
-  font-weight:800;
-  background:transparent !important;  /* bỏ tone nền */
-}
+.score-wrap{display:grid;gap:8px;justify-items:center;text-align:center;margin-bottom:10px}
+.score{font-size:var(--fs-3xl);font-weight:900;line-height:1;background:transparent !important}
+.label{font-size:var(--fs-md);font-weight:800;background:transparent !important}
 
 .legend{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
 .chip{padding:6px 10px;border-radius:999px;font-size:12px;color:#0f1729}
@@ -90,10 +75,19 @@ table{width:100%;border-collapse:collapse;margin-top:8px;font-size:var(--fs-sm)}
 th,td{padding:8px;border-bottom:1px solid #22304a;text-align:left}
 th{color:#b9c8de;font-weight:700}
 
+/* === Explain box: bảng 2 cột === */
+.explain{
+  background:#0e162b;border:1px solid #22304a;border-radius:12px;padding:12px;overflow:auto
+}
+.explain table{width:100%;border-collapse:collapse}
+.explain th, .explain td{padding:10px;border-bottom:1px solid #1f2b46;vertical-align:top}
+.explain th{width:200px;color:#cfe1ff;text-wrap:balance}
+.explain .math{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;font-size:13px}
+
 /* ====== Toast ====== */
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0f1a33;border:1px solid #26355a;padding:10px 14px;border-radius:999px;box-shadow:var(--shadow);display:none;color:#cfe1ff;z-index:60}
 
-/* ====== Mobile: result becomes bottom sheet ====== */
+/* ====== Mobile: bottom sheet ====== */
 @media (max-width: 860px){
   .layout{grid-template-columns:1fr}
   .result-panel{
@@ -101,11 +95,11 @@ th{color:#b9c8de;font-weight:700}
     border-radius:16px 16px 0 0;border-top:1px solid #1e2b4a;border-left:0;border-right:0;
     box-shadow:0 -12px 32px rgba(0,0,0,.5);
   }
-  body{padding-bottom:220px} /* chừa chỗ cho sheet khi mở */
-  .result-panel.min{transform:translateY(calc(100% - 54px));}
+  body{padding-bottom:220px}
+  .result-panel.min{transform:translateY(calc(100% - 54px))}
 }
 
-/* ====== Print for PDF ====== */
+/* ====== Print ====== */
 @media print{
   header,.result-panel,.toast{display:none !important}
   body{background:white;color:black}
