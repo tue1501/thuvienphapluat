@@ -1,110 +1,25 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>VN_WQI 1460/QĐ-TCMT – Máy tính chỉ số chất lượng nước</title>
-<link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0b1220">
-<style>
-  /* ========= Dark theme (mặc định) ========= */
-  :root{
-    --bg:#0b1220; --card:#111828; --muted:#93a4bb; --text:#e8eef7; --line:#22304a;
-    --brand:#2f6bff; --ok:#00a884; --warn:#ffb020; --bad:#ff4d4f;
-    --sea:#335dff; --green:#22e282; --yellow:#ffd84d; --orange:#ff8c42; --red:#ff4d4f; --brown:#7e0023;
-
-    --radius:14px; --shadow:0 8px 28px rgba(0,0,0,.28);
-    --fs-xxs:12px; --fs-xs:13px; --fs-sm:14px; --fs-md:16px; --fs-lg:18px; --fs-xl:22px; --fs-2xl:26px;
-    --pad-sm:12px; --pad-md:16px; --pad-lg:20px; --pad-xl:28px; --content-w:1200px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;line-height:1.5}
-
-  .wrap{max-width:var(--content-w);margin:0 auto;padding:0 var(--pad-md) var(--pad-xl);container-type:inline-size}
-  header{position:sticky;top:0;z-index:30;background:linear-gradient(to bottom, #0b1220ee, #0b122000);backdrop-filter:blur(8px);border-bottom:1px solid #15213a}
-  .hero{padding:12px 0}
-  .title{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-  .title h1{margin:.2rem 0;font-size:clamp(18px,3.4vw,28px)}
-  .subtitle{margin:0;color:var(--muted);font-size:var(--fs-sm)}
-  .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;background:#0f1a33;border:1px solid #26355a;font-size:var(--fs-xs);color:#b9c8de}
-
-  .grid{display:grid;grid-template-columns:1fr;gap:16px}
-  @container (min-width: 720px){
-    .grid{grid-template-columns:repeat(12,1fr)}
-    .span-4{grid-column:span 4}
-    .span-6{grid-column:span 6}
-    .span-12{grid-column:span 12}
-  }
-  @supports not (container-type: inline-size){
-    @media (min-width: 880px){
-      .grid{grid-template-columns:repeat(12,1fr)}
-      .span-4{grid-column:span 4}
-      .span-6{grid-column:span 6}
-      .span-12{grid-column:span 12}
-    }
-  }
-
-  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:var(--pad-md);box-shadow:var(--shadow)}
-  .card h2{margin:.2rem 0 .6rem 0;font-size:var(--fs-lg)}
-  .group-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:12px;flex-wrap:wrap}
-
-  .row{display:flex;flex-wrap:wrap;gap:10px}
-  label.i{display:grid;grid-template-columns:1fr;gap:6px;min-width:130px;flex:1}
-  .lab{font-size:var(--fs-sm);color:var(--muted)}
-  .unit{font-size:var(--fs-xxs);opacity:.9}
-  input[type="number"], input[type="text"]{
-    width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
-    background:#0e162b;color:var(--text);font-size:var(--fs-md);
-  }
-  input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{opacity:.7}
-  .hint{font-size:var(--fs-xs);color:var(--muted)}
-  .inline{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .btn{appearance:none;border:0;border-radius:12px;padding:12px 14px;background:var(--brand);color:white;cursor:pointer;font-weight:700}
-  .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
-  .btn.ghost{background:#0f1a33;border:1px solid #26355a;color:#b9c8de}
-  .btn:active{transform:translateY(1px)}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-
-  .toolbar{display:flex;flex-wrap:wrap;gap:8px}
-  .toolbar .grow{flex:1;min-width:180px}
-
-  .result{padding:var(--pad-md);border-radius:var(--radius);background:#0e162c;border:1px dashed #2a3a60}
-  .badge{display:inline-flex;align-items:center;font-weight:800;border-radius:999px;padding:8px 12px;margin-right:6px}
-  .scale{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-  .chip{padding:8px 10px;border-radius:10px;font-size:var(--fs-xs);color:#0f1729}
-  .chip.sea{background:var(--sea)} .chip.green{background:var(--green)}
-  .chip.yellow{background:var(--yellow)} .chip.orange{background:var(--orange)} .chip.red{background:var(--red)} .chip.brown{background:var(--brown);color:#fff}
-
-  details{border-top:1px dashed var(--line);margin-top:12px;padding-top:12px}
-  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:var(--fs-sm)}
-  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
-  th{color:var(--muted);font-weight:700}
-
-  @media (max-width: 720px){
-    .btn{width:100%}
-    .row > .i{min-width:calc(50% - 10px)}
-    .hero{padding: 10px 0}
-  }
-
-  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#0f1a33;border:1px solid #26355a;padding:10px 14px;border-radius:999px;box-shadow:var(--shadow);display:none;color:#cfe1ff}
-  /* Print for PDF */
-  @media print{
-    header, .toolbar, .scale, .toast { display:none !important; }
-    body{background:white;color:black}
-    .card{border-color:#ddd;box-shadow:none}
-    .result{border-color:#ddd;background:#fff}
-    a[href]:after{content:" (" attr(href) ")";font-size:10px}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>VN_WQI 1460 – Máy tính chỉ số chất lượng nước</title>
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <div class="wrap hero">
       <div class="title">
-        <div>
-          <h1>VN_WQI – Tính chỉ số chất lượng nước (QĐ 1460)</h1>
-          <p class="subtitle">Nền đen · Responsive · Lưu/Khôi phục · Xuất CSV/PDF · PWA</p>
+        <div class="brand">
+          <div class="logo">💧</div>
+          <div>
+            <h1>VN_WQI – Chỉ số chất lượng nước (QĐ 1460)</h1>
+            <p class="subtitle">Nền đen · Responsive · Lưu/Khôi phục · Xuất CSV/PDF · PWA</p>
+          </div>
         </div>
         <div class="pill" id="stickySummary">VN_WQI: – · Mức: –</div>
       </div>
@@ -112,372 +27,133 @@
   </header>
 
   <main class="wrap">
-    <!-- Thanh công cụ -->
-    <section class="card span-12" style="margin-bottom:8px">
+    <!-- Toolbar -->
+    <section class="card">
       <div class="toolbar">
-        <input id="datasetName" class="grow" type="text" placeholder="Tên bộ số liệu (ví dụ: Song_Hong_2025-09-05)">
+        <input id="datasetName" class="grow" type="text" placeholder="Tên bộ số liệu (ví dụ: Song_Hong_2025-09-05)" />
         <button class="btn" id="saveBtn">Lưu bộ số liệu</button>
-        <select id="savedList" class="grow" style="padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:#0e162b;color:#e8eef7"></select>
+        <select id="savedList" class="grow select"></select>
         <button class="btn ghost" id="loadBtn">Khôi phục</button>
         <button class="btn ghost" id="deleteBtn" title="Xóa bộ đã chọn">Xóa</button>
-        <span style="flex:1"></span>
+        <span class="spacer"></span>
         <button class="btn secondary" id="exportCsvBtn">Xuất CSV</button>
         <button class="btn secondary" id="exportPdfBtn">Xuất PDF</button>
       </div>
-      <p class="hint" id="reqNote" style="margin-top:8px">Công bố chính thức: cần ≥3/5 nhóm, có nhóm IV và trong nhóm IV ≥3 thông số.</p>
+      <p class="hint">Để công bố chính thức: cần ≥3/5 nhóm, bắt buộc có Nhóm IV và trong Nhóm IV ≥3 thông số.</p>
     </section>
 
-    <div class="grid">
-      <!-- Nhóm I: pH -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Nhóm I – pH</h2><span class="pill">Đơn vị: –</span></div>
-        <div class="row">
-          <label class="i"><span class="lab">pH</span><input id="ph" type="number" step="0.01" inputmode="decimal" placeholder="7.2"/></label>
-        </div>
-        <p class="hint">pH &lt; 5.5 hoặc &gt; 9 ⇒ WQI = 10; 5.5–6 và 8.5–9 nội suy; 6–8.5 ⇒ 100.</p>
-      </section>
-
-      <!-- Nhóm IV -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Nhóm IV – Hữu cơ &amp; dinh dưỡng</h2><span class="pill">mg/L (trừ DO%)</span></div>
-        <div class="row">
-          <label class="i"><span class="lab">DO (mg/L)</span><input id="do" type="number" step="0.01" inputmode="decimal" placeholder="5.7"/></label>
-          <label class="i"><span class="lab">T (°C)</span><input id="temp" type="number" step="0.1" inputmode="decimal" placeholder="27.5"/></label>
-          <label class="i"><span class="lab">BOD₅</span><input id="bod" type="number" step="0.01" inputmode="decimal" placeholder="20"/></label>
-          <label class="i"><span class="lab">COD</span><input id="cod" type="number" step="0.01" inputmode="decimal" placeholder="25"/></label>
-          <label class="i"><span class="lab">TOC</span><input id="toc" type="number" step="0.01" inputmode="decimal" placeholder=""/></label>
-          <label class="i"><span class="lab">N–NH₄</span><input id="nh4" type="number" step="0.001" inputmode="decimal" placeholder="0.2"/></label>
-          <label class="i"><span class="lab">N–NO₃</span><input id="no3" type="number" step="0.01" inputmode="decimal" placeholder=""/></label>
-          <label class="i"><span class="lab">N–NO₂</span><input id="no2" type="number" step="0.001" inputmode="decimal" placeholder=""/></label>
-          <label class="i"><span class="lab">P–PO₄</span><input id="po4" type="number" step="0.01" inputmode="decimal" placeholder="0.3"/></label>
-        </div>
-        <p class="hint">DO tính theo % bão hòa từ DO đo được và nhiệt độ.</p>
-      </section>
-
-      <!-- Nhóm V -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Nhóm V – Vi sinh</h2><span class="pill">MPN/100 mL</span></div>
-        <div class="row">
-          <label class="i"><span class="lab">Coliform</span><input id="coli" type="number" step="1" inputmode="numeric" placeholder="10000"/></label>
-          <label class="i"><span class="lab">E. coli</span><input id="ecoli" type="number" step="1" inputmode="numeric" placeholder=""/></label>
-        </div>
-      </section>
-
-      <!-- Nhóm III -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Nhóm III – Kim loại nặng</h2><span class="pill">mg/L</span></div>
-        <div class="row">
-          <label class="i"><span class="lab">As</span><input id="as" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Cd</span><input id="cd" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Pb</span><input id="pb" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Cr⁶⁺</span><input id="cr6" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Cu</span><input id="cu" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Zn</span><input id="zn" type="number" step="0.0001"/></label>
-          <label class="i"><span class="lab">Hg</span><input id="hg" type="number" step="0.00001"/></label>
-        </div>
-      </section>
-
-      <!-- Nhóm II -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Nhóm II – Thuốc BVTV</h2><span class="pill">μg/L</span></div>
-        <div class="row">
-          <label class="i"><span class="lab">Aldrin</span><input id="aldrin" type="number" step="0.001"/></label>
-          <label class="i"><span class="lab">BHC</span><input id="bhc" type="number" step="0.001"/></label>
-          <label class="i"><span class="lab">Dieldrin</span><input id="dieldrin" type="number" step="0.001"/></label>
-          <label class="i"><span class="lab">Tổng DDTₛ</span><input id="ddts" type="number" step="0.01"/></label>
-          <label class="i"><span class="lab">Heptachlor &amp; epoxide</span><input id="hept" type="number" step="0.001"/></label>
-        </div>
-        <p class="hint">≤ ngưỡng ⇒ WQI=100; vượt ⇒ 10.</p>
-      </section>
-
-      <!-- Tùy chọn & tính -->
-      <section class="card span-4">
-        <div class="group-title"><h2>Tổng hợp &amp; tính toán</h2></div>
-        <label class="inline"><input id="weighted" type="checkbox" /> Áp dụng <b>trọng số ô nhiễm hữu cơ</b> (Nhóm IV=2, Nhóm V=1)</label>
-        <div class="row" style="margin-top:10px">
-          <button id="calc" class="btn">Tính VN_WQI</button>
-          <button id="clear" class="btn secondary" type="button">Xóa số liệu</button>
-        </div>
-      </section>
-
-      <!-- Kết quả -->
-      <section class="card span-12">
-        <h2>Kết quả</h2>
-        <div id="warnings" class="hint"></div>
-        <div id="out" class="result">
-          <div class="row" style="gap:8px;align-items:center">
-            <span id="score" class="badge" style="background:#26355a;color:#fff">VN_WQI: –</span>
-            <span id="label" class="badge" style="background:#26355a;color:#fff">Mức chất lượng: –</span>
+    <!-- Layout: main form + sticky results -->
+    <div class="layout">
+      <div class="main-form">
+        <!-- Nhóm I -->
+        <section class="card">
+          <div class="group-title"><h2>Nhóm I – pH</h2><span class="pill">Đơn vị: –</span></div>
+          <div class="row">
+            <label class="i">
+              <span class="lab">pH</span>
+              <input id="ph" type="number" step="0.01" inputmode="decimal" placeholder="7.2"/>
+            </label>
           </div>
-          <div class="scale" aria-hidden="true">
-            <span class="chip sea">91–100: Rất tốt</span>
-            <span class="chip green">76–90: Tốt</span>
-            <span class="chip yellow">51–75: Trung bình</span>
-            <span class="chip orange">26–50: Xấu</span>
-            <span class="chip red">10–25: Kém</span>
-            <span class="chip brown">&lt;10: Ô nhiễm rất nặng</span>
-          </div>
+          <p class="hint">pH &lt; 5.5 hoặc &gt; 9 ⇒ WQI = 10; 5.5–6 và 8.5–9 nội suy; 6–8.5 ⇒ 100.</p>
+        </section>
 
-          <details>
-            <summary>Chi tiết WQI theo nhóm & tham số</summary>
-            <div id="detail"></div>
-          </details>
+        <!-- Nhóm II -->
+        <section class="card">
+          <div class="group-title"><h2>Nhóm II – Thuốc BVTV</h2><span class="pill">μg/L</span></div>
+          <div class="row">
+            <label class="i"><span class="lab">Aldrin</span><input id="aldrin" type="number" step="0.001"/></label>
+            <label class="i"><span class="lab">BHC</span><input id="bhc" type="number" step="0.001"/></label>
+            <label class="i"><span class="lab">Dieldrin</span><input id="dieldrin" type="number" step="0.001"/></label>
+            <label class="i"><span class="lab">Tổng DDTₛ</span><input id="ddts" type="number" step="0.01"/></label>
+            <label class="i"><span class="lab">Heptachlor &amp; epoxide</span><input id="hept" type="number" step="0.001"/></label>
+          </div>
+          <p class="hint">≤ ngưỡng ⇒ WQI=100; vượt ⇒ 10.</p>
+        </section>
+
+        <!-- Nhóm III -->
+        <section class="card">
+          <div class="group-title"><h2>Nhóm III – Kim loại nặng</h2><span class="pill">mg/L</span></div>
+          <div class="row">
+            <label class="i"><span class="lab">As</span><input id="as" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Cd</span><input id="cd" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Pb</span><input id="pb" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Cr⁶⁺</span><input id="cr6" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Cu</span><input id="cu" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Zn</span><input id="zn" type="number" step="0.0001"/></label>
+            <label class="i"><span class="lab">Hg</span><input id="hg" type="number" step="0.00001"/></label>
+          </div>
+        </section>
+
+        <!-- Nhóm IV -->
+        <section class="card">
+          <div class="group-title"><h2>Nhóm IV – Hữu cơ &amp; dinh dưỡng</h2><span class="pill">mg/L (trừ DO%)</span></div>
+          <div class="row">
+            <label class="i"><span class="lab">DO (mg/L)</span><input id="do" type="number" step="0.01" inputmode="decimal" placeholder="5.7"/></label>
+            <label class="i"><span class="lab">T (°C)</span><input id="temp" type="number" step="0.1" inputmode="decimal" placeholder="27.5"/></label>
+            <label class="i"><span class="lab">BOD₅</span><input id="bod" type="number" step="0.01" inputmode="decimal" placeholder="20"/></label>
+            <label class="i"><span class="lab">COD</span><input id="cod" type="number" step="0.01" inputmode="decimal" placeholder="25"/></label>
+            <label class="i"><span class="lab">TOC</span><input id="toc" type="number" step="0.01" inputmode="decimal" placeholder=""/></label>
+            <label class="i"><span class="lab">N–NH₄</span><input id="nh4" type="number" step="0.001" inputmode="decimal" placeholder="0.2"/></label>
+            <label class="i"><span class="lab">N–NO₃</span><input id="no3" type="number" step="0.01" inputmode="decimal" placeholder=""/></label>
+            <label class="i"><span class="lab">N–NO₂</span><input id="no2" type="number" step="0.001" inputmode="decimal" placeholder=""/></label>
+            <label class="i"><span class="lab">P–PO₄</span><input id="po4" type="number" step="0.01" inputmode="decimal" placeholder="0.3"/></label>
+          </div>
+          <p class="hint">DO tính theo % bão hòa từ DO đo được và nhiệt độ.</p>
+        </section>
+
+        <!-- Nhóm V -->
+        <section class="card">
+          <div class="group-title"><h2>Nhóm V – Vi sinh</h2><span class="pill">MPN/100 mL</span></div>
+          <div class="row">
+            <label class="i"><span class="lab">Coliform</span><input id="coli" type="number" step="1" inputmode="numeric" placeholder="10000"/></label>
+            <label class="i"><span class="lab">E. coli</span><input id="ecoli" type="number" step="1" inputmode="numeric" placeholder=""/></label>
+          </div>
+        </section>
+
+        <!-- Tùy chọn & tính -->
+        <section class="card">
+          <div class="group-title"><h2>Tổng hợp &amp; tính toán</h2></div>
+          <label class="inline"><input id="weighted" type="checkbox" /> Áp dụng <b>trọng số ô nhiễm hữu cơ</b> (Nhóm IV=2, Nhóm V=1)</label>
+          <div class="row" style="margin-top:10px">
+            <button id="calc" class="btn">Tính VN_WQI</button>
+            <button id="clear" class="btn secondary" type="button">Xóa số liệu</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <aside class="result-panel" id="resultPanel" aria-live="polite">
+        <div class="sheet-handle" id="sheetHandle">
+          <span class="drag"></span>
+          <span class="sheet-title">Kết quả VN_WQI</span>
+          <button class="btn tiny ghost" id="toggleSheet">Thu gọn</button>
         </div>
-      </section>
+
+        <div id="warnings" class="warnings"></div>
+
+        <div class="score-wrap">
+          <div id="score" class="score">–</div>
+          <div id="label" class="label">Mức chất lượng: –</div>
+        </div>
+
+        <div class="legend">
+          <span class="chip sea">91–100: Rất tốt</span>
+          <span class="chip green">76–90: Tốt</span>
+          <span class="chip yellow">51–75: Trung bình</span>
+          <span class="chip orange">26–50: Xấu</span>
+          <span class="chip red">10–25: Kém</span>
+          <span class="chip brown">&lt;10: Ô nhiễm rất nặng</span>
+        </div>
+
+        <details class="detail">
+          <summary>Chi tiết WQI theo nhóm & tham số</summary>
+          <div id="detail"></div>
+        </details>
+      </aside>
     </div>
   </main>
 
   <div class="toast" id="toast"></div>
-
-<script>
-  // ===== Helpers & UI =====
-  const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
-  const round = (v)=>Math.round(v);
-  const interp=(x,x0,x1,y0,y1)=>y0 + ((x-x0)/(x1-x0))*(y1-y0);
-  const $ = (id)=>document.getElementById(id);
-  const good = (x)=>x!=null && !isNaN(x);
-  function toast(msg, ms=1800){ const t=$('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none', ms); }
-
-  // ===== Thresholds từ QĐ 1460 (rút gọn) =====
-  const BP = {
-    BOD:[4,6,15,25,50], COD:[10,15,30,50,150], TOC:[4,6,15,25,50],
-    NH4:[0.3,0.6,0.9,5], NO3:[2,5,10,15], NO2_only:0.05, PO4:[0.1,0.2,0.3,0.5,4],
-    Coli:[2500,5000,7500,10000], Ecoli:[20,50,100,200],
-    As:[0.01,0.02,0.05,0.1], Cd:[0.005,0.008,0.01,0.1], Pb:[0.02,0.04,0.05,0.5],
-    Cr6:[0.01,0.02,0.04,0.1], Cu:[0.1,0.2,0.5,1.0,2.0], Zn:[0.5,1.0,1.5,2.0,3.0], Hg:[0.001,0.0015,0.002,0.01],
-    Aldrin:0.1, BHC:0.02, Dieldrin:0.1, DDTs:1.0, Hept:0.2
-  };
-
-  // ===== WQI tham số =====
-  function wqiFromBreakpoints(cp, thresholds){
-    if (cp==null || isNaN(cp)) return null;
-    const q=[100,75,50,25,10];
-    if (cp <= thresholds[0]) return 100;
-    for (let i=1;i<thresholds.length;i++){
-      if (cp <= thresholds[i]){
-        const [x0,x1]=[thresholds[i-1], thresholds[i]];
-        const [y0,y1]=[q[i-1], q[i]];
-        return y0 + ( (cp-x0)/(x1-x0) )*(y1-y0);
-      }
-    }
-    return 10;
-  }
-  function wqiGroupIV(param, cp){
-    switch(param){
-      case 'BOD': return wqiFromBreakpoints(cp, BP.BOD);
-      case 'COD': return wqiFromBreakpoints(cp, BP.COD);
-      case 'TOC': return wqiFromBreakpoints(cp, BP.TOC);
-      case 'NH4': return cp<=BP.NH4[0]?100:(cp<BP.NH4[1]?interp(cp,BP.NH4[0],BP.NH4[1],75,50):(cp<BP.NH4[2]?interp(cp,BP.NH4[1],BP.NH4[2],50,25):(cp<BP.NH4[3]?interp(cp,BP.NH4[2],BP.NH4[3],25,10):10)));
-      case 'NO3': return wqiFromBreakpoints(cp, BP.NO3);
-      case 'NO2': return (cp==null||isNaN(cp))?null:(cp<=BP.NO2_only?100:10);
-      case 'PO4': return wqiFromBreakpoints(cp, BP.PO4);
-    }
-  }
-  function wqiMetal(name, cp){
-    const map = {As:BP.As,Cd:BP.Cd,Pb:BP.Pb,Cr6:BP.Cr6,Cu:BP.Cu,Zn:BP.Zn,Hg:BP.Hg}[name];
-    if (!map) return null;
-    return wqiFromBreakpoints(cp, map);
-  }
-  function wqiPesticide(name, val){
-    if (val==null || isNaN(val)) return null;
-    const lim = {Aldrin:BP.Aldrin,BHC:BP.BHC,Dieldrin:BP.Dieldrin,DDTs:BP.DDTs,Hept:BP.Hept}[name];
-    return (val<=lim)?100:10;
-  }
-  function wqiDO(doMgL, tempC){
-    if (!good(doMgL) || !good(tempC)) return null;
-    const DOsat = 14.652 - 0.41022*tempC + 0.0079910*tempC*tempC - 0.000077774*tempC*tempC*tempC;
-    const DOpct = (doMgL/DOsat)*100;
-    let w;
-    if (DOpct < 20 || DOpct > 200) w=10;
-    else if (DOpct < 88) w = interp(DOpct,20,88,25,100);
-    else if (DOpct <= 112) w = 100;
-    else w = interp(DOpct,112,200,100,25);
-    return {WQI:w, DOsat, DOpct};
-  }
-  function wqiPH(ph){
-    if (!good(ph)) return null;
-    if (ph < 5.5 || ph > 9) return 10;
-    if (ph < 6) return interp(ph,5.5,6,50,100);
-    if (ph <= 8.5) return 100;
-    return interp(ph,8.5,9,100,50);
-  }
-  function aggregateWQI({wqiI, arrII, arrIII, arrIV, arrV, weighted=false}){
-    const mult = (arr)=>arr.reduce((a,b)=>a*b,1);
-    const mean = (arr)=>arr.reduce((a,b)=>a+b,0)/arr.length;
-
-    const fI = (wqiI!=null)? (wqiI/100) : 1;
-    const II = arrII.filter(good), III = arrIII.filter(good), IV = arrIV.filter(good), V = arrV.filter(good);
-
-    if (!IV.length) return {WQI:null, reason:"Thiếu nhóm IV (bắt buộc)"};
-
-    const fII = II.length? Math.pow(mult(II.map(v=>v/100)), 1/II.length) : 1;
-    const fIII= III.length? Math.pow(mult(III.map(v=>v/100)), 1/III.length) : 1;
-
-    if (V.length){
-      const avgIV = mean(IV), avgV = mean(V);
-      const core = weighted ? Math.pow((Math.pow(avgIV,2)*avgV), 1/3) : Math.sqrt(avgIV*avgV);
-      return {WQI: Math.round(clamp(100 * fI * fII * fIII * (core/100), 0, 100))};
-    } else {
-      const avgIV = mean(IV);
-      return {WQI: Math.round(clamp(100 * fI * fII * fIII * (avgIV/100), 0, 100))};
-    }
-  }
-  function classify(wqi){
-    if (wqi==null) return {label:"–", color:"#26355a", fg:"#fff"};
-    const gs=getComputedStyle(document.documentElement);
-    if (wqi>=91) return {label:"Rất tốt", color:gs.getPropertyValue('--sea').trim(), fg:"#fff"};
-    if (wqi>=76) return {label:"Tốt", color:gs.getPropertyValue('--green').trim(), fg:"#0f1729"};
-    if (wqi>=51) return {label:"Trung bình", color:gs.getPropertyValue('--yellow').trim(), fg:"#0f1729"};
-    if (wqi>=26) return {label:"Xấu", color:gs.getPropertyValue('--orange').trim(), fg:"#0f1729"};
-    if (wqi>=10) return {label:"Kém", color:gs.getPropertyValue('--red').trim(), fg:"#fff"};
-    return {label:"Ô nhiễm rất nặng", color:gs.getPropertyValue('--brown').trim(), fg:"#fff"};
-  }
-
-  // ===== Wire up =====
-  function val(id){ const el=$(id); const v=parseFloat(el.value); return isNaN(v)?null:v; }
-  function calc(){
-    const weighted = $('weighted').checked;
-
-    const wqi_pH = wqiPH(val('ph'));
-    const doRes = wqiDO(val('do'), val('temp')); const WQI_DO = doRes?doRes.WQI:null;
-    const WQI_BOD = wqiGroupIV('BOD', val('bod'));
-    const WQI_COD = wqiGroupIV('COD', val('cod'));
-    const WQI_TOC = wqiGroupIV('TOC', val('toc'));
-    const WQI_NH4 = wqiGroupIV('NH4', val('nh4'));
-    const WQI_NO3 = wqiGroupIV('NO3', val('no3'));
-    const WQI_NO2 = wqiGroupIV('NO2', val('no2'));
-    const WQI_PO4 = wqiGroupIV('PO4', val('po4'));
-    const WQI_Coli  = (val('coli')!=null)? wqiFromBreakpoints(val('coli'), BP.Coli) : null;
-    const WQI_Ecoli = (val('ecoli')!=null)? wqiFromBreakpoints(val('ecoli'), BP.Ecoli) : null;
-    const WQI_As = wqiMetal('As', val('as')); const WQI_Cd = wqiMetal('Cd', val('cd')); const WQI_Pb = wqiMetal('Pb', val('pb'));
-    const WQI_Cr6= wqiMetal('Cr6', val('cr6')); const WQI_Cu = wqiMetal('Cu', val('cu')); const WQI_Zn = wqiMetal('Zn', val('zn')); const WQI_Hg = wqiMetal('Hg', val('hg'));
-    const WQI_Ald = wqiPesticide('Aldrin', val('aldrin')); const WQI_BHC = wqiPesticide('BHC', val('bhc'));
-    const WQI_Die = wqiPesticide('Dieldrin', val('dieldrin')); const WQI_DDT = wqiPesticide('DDTs', val('ddts')); const WQI_Hep = wqiPesticide('Hept', val('hept'));
-
-    const agg = aggregateWQI({
-      wqiI: wqi_pH,
-      arrII: [WQI_Ald,WQI_BHC,WQI_Die,WQI_DDT,WQI_Hep],
-      arrIII:[WQI_As,WQI_Cd,WQI_Pb,WQI_Cr6,WQI_Cu,WQI_Zn,WQI_Hg],
-      arrIV: [WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4],
-      arrV:  [WQI_Coli,WQI_Ecoli],
-      weighted
-    });
-
-    // Cảnh báo
-    const presentCount = [
-      wqi_pH!=null,
-      [WQI_Ald,WQI_BHC,WQI_Die,WQI_DDT,WQI_Hep].some(good),
-      [WQI_As,WQI_Cd,WQI_Pb,WQI_Cr6,WQI_Cu,WQI_Zn,WQI_Hg].some(good),
-      [WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4].some(good),
-      [WQI_Coli,WQI_Ecoli].some(good)
-    ].filter(Boolean).length;
-    const warn=[];
-    if (presentCount < 3) warn.push("Đang có < 3 nhóm thông số (yêu cầu ≥ 3).");
-    const hasIV=[WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4].some(good);
-    if (!hasIV) warn.push("Thiếu toàn bộ nhóm IV (bắt buộc).");
-    if ([WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4].filter(good).length < 3)
-      warn.push("Nhóm IV hiện < 3 thông số (khuyến nghị ≥ 3).");
-    $('warnings').innerHTML = warn.length ? `<span style="color:var(--warn)">⚠ ${warn.join(" ")}</span>` : "";
-
-    // Hiển thị
-    const score = agg.WQI; const cls = classify(score);
-    $('score').textContent = `VN_WQI: ${score==null?"–":score}`;
-    $('label').textContent = `Mức chất lượng: ${cls.label}`;
-    $('score').style.background=cls.color; $('score').style.color=cls.fg;
-    $('label').style.background=cls.color; $('label').style.color=cls.fg;
-    $('stickySummary').textContent = `VN_WQI: ${score==null?"–":score} · ${cls.label}`;
-
-    // Bảng chi tiết
-    const rows=[]; const add=(k,v)=>rows.push(`<tr><td>${k}</td><td>${v==null?"–":(+v).toFixed(1)}</td></tr>`);
-    rows.push(`<tr><th colspan="2">Nhóm I</th></tr>`); add("pH → WQI_pH", wqi_pH);
-    rows.push(`<tr><th colspan="2">Nhóm II (GM)</th></tr>`); add("Aldrin",WQI_Ald); add("BHC",WQI_BHC); add("Dieldrin",WQI_Die); add("DDTₛ",WQI_DDT); add("Heptachlor",WQI_Hep);
-    rows.push(`<tr><th colspan="2">Nhóm III (GM)</th></tr>`); add("As",WQI_As); add("Cd",WQI_Cd); add("Pb",WQI_Pb); add("Cr⁶⁺",WQI_Cr6); add("Cu",WQI_Cu); add("Zn",WQI_Zn); add("Hg",WQI_Hg);
-    rows.push(`<tr><th colspan="2">Nhóm IV (TB)</th></tr>`);
-    if (doRes) rows.push(`<tr><td>DO% bão hòa</td><td>${doRes.DOpct.toFixed(1)}% (DO_bão_hòa=${doRes.DOsat.toFixed(2)} mg/L)</td></tr>`);
-    add("WQI_DO",WQI_DO); add("BOD₅",WQI_BOD); add("COD",WQI_COD); add("TOC",WQI_TOC); add("N–NH₄",WQI_NH4); add("N–NO₃",WQI_NO3); add("N–NO₂",WQI_NO2); add("P–PO₄",WQI_PO4);
-    rows.push(`<tr><th colspan="2">Nhóm V (TB)</th></tr>`); add("Coliform",WQI_Coli); add("E. coli",WQI_Ecoli);
-    $('detail').innerHTML = `<table><thead><tr><th>Thông số</th><th>WQI</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
-
-    toast(score==null ? "Thiếu dữ liệu nhóm IV" : "Đã tính xong VN_WQI");
-  }
-
-  $('calc').addEventListener('click', calc);
-  $('clear').addEventListener('click', ()=>{
-    document.querySelectorAll('input[type="number"]').forEach(i=>i.value="");
-    $('weighted').checked=false; $('warnings').textContent="";
-    $('score').textContent="VN_WQI: –"; $('label').textContent="Mức chất lượng: –";
-    $('score').style.background="#26355a"; $('label').style.background="#26355a";
-    $('detail').innerHTML=""; $('stickySummary').textContent="VN_WQI: – · Mức: –";
-    toast("Đã xóa số liệu");
-  });
-
-  // ===== Lưu/Khôi phục bộ số liệu (localStorage) =====
-  const KEY='vnwqi:datasets';
-  const FIELD_IDS=["ph","do","temp","bod","cod","toc","nh4","no3","no2","po4","coli","ecoli","as","cd","pb","cr6","cu","zn","hg","aldrin","bhc","dieldrin","ddts","hept","weighted"];
-  function readForm(){
-    const data={}; FIELD_IDS.forEach(id=>{
-      if(id==="weighted"){ data[id] = $('weighted').checked ? 1 : 0; }
-      else { const v=$('#'+id)?.value; data[id]= v===""? null : +v; }
-    });
-    return data;
-  }
-  function writeForm(data){
-    FIELD_IDS.forEach(id=>{
-      if(id==="weighted"){ $('weighted').checked = !!(data[id]); }
-      else if (data[id]==null || data[id]==="") { $('#'+id).value=""; }
-      else { $('#'+id).value = data[id]; }
-    });
-  }
-  function loadAll(){ try{ return JSON.parse(localStorage.getItem(KEY)||"{}"); }catch{return{}} }
-  function saveAll(obj){ localStorage.setItem(KEY, JSON.stringify(obj)); }
-  function refreshSavedList(){
-    const all=loadAll(); const sel=$('savedList'); sel.innerHTML="";
-    const opt = (v,t)=>{const o=document.createElement('option'); o.value=v; o.textContent=t; return o;};
-    sel.appendChild(opt("","— Bộ đã lưu —"));
-    Object.keys(all).sort().forEach(name=> sel.appendChild(opt(name,name)));
-  }
-  function saveCurrent(){
-    const name=$('datasetName').value.trim();
-    if(!name){ toast("Hãy nhập tên bộ số liệu trước khi lưu"); return; }
-    const all=loadAll(); all[name]={ data:readForm(), savedAt:new Date().toISOString() }; saveAll(all);
-    refreshSavedList(); $('savedList').value=name; toast("Đã lưu bộ số liệu: "+name);
-  }
-  function restoreSelected(){
-    const name=$('savedList').value; if(!name){ toast("Chưa chọn bộ để khôi phục"); return; }
-    const all=loadAll(); if(!all[name]){ toast("Không tìm thấy bộ đã lưu"); return; }
-    writeForm(all[name].data); toast("Đã khôi phục: "+name);
-  }
-  function deleteSelected(){
-    const name=$('savedList').value; if(!name){ toast("Chưa chọn bộ để xóa"); return; }
-    const all=loadAll(); delete all[name]; saveAll(all); refreshSavedList(); $('savedList').value="";
-    toast("Đã xóa: "+name);
-  }
-  $('saveBtn').addEventListener('click', saveCurrent);
-  $('loadBtn').addEventListener('click', restoreSelected);
-  $('deleteBtn').addEventListener('click', deleteSelected);
-  window.addEventListener('load', refreshSavedList);
-
-  // ===== Xuất CSV =====
-  function exportCSV(){
-    const data=readForm();
-    const rows=[["parameter","value"]];
-    Object.entries(data).forEach(([k,v])=> rows.push([k, v==null?"":v]));
-    const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
-    const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    const name=$('datasetName').value.trim() || "vnwqi_dataset";
-    a.download=`${name}.csv`; a.click(); URL.revokeObjectURL(a.href);
-  }
-  $('exportCsvBtn').addEventListener('click', exportCSV);
-
-  // ===== Xuất PDF (In) =====
-  $('exportPdfBtn').addEventListener('click', ()=>window.print());
-
-  // ===== PWA: đăng ký service worker =====
-  if ('serviceWorker' in navigator){
-    window.addEventListener('load', ()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-  }
-</script>
+  <script src="app.js"></script>
 </body>
 </html>
