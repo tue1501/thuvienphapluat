@@ -14,7 +14,9 @@ const BP = {
   Coli:[2500,5000,7500,10000], Ecoli:[20,50,100,200],
   As:[0.01,0.02,0.05,0.1], Cd:[0.005,0.008,0.01,0.1], Pb:[0.02,0.04,0.05,0.5],
   Cr6:[0.01,0.02,0.04,0.1], Cu:[0.1,0.2,0.5,1.0,2.0], Zn:[0.5,1.0,1.5,2.0,3.0], Hg:[0.001,0.0015,0.002,0.01],
-  Aldrin:0.1, BHC:0.02, Dieldrin:0.1, DDTs:1.0, Hept:0.2
+  Aldrin:0.1, BHC:0.02, Dieldrin:0.1, DDTs:1.0, Hept:0.2,
+  Turb:[5,20,30,70,100], // Độ đục (NTU)
+  TSS:[20,30,50,100,130] // TSS (mg/L)
 };
 
 /* ========= WQI building blocks ========= */
@@ -54,6 +56,34 @@ function wqiPesticide(name,val){
   if (val==null||isNaN(val)) return null;
   const lim={Aldrin:BP.Aldrin,BHC:BP.BHC,Dieldrin:BP.Dieldrin,DDTs:BP.DDTs,Hept:BP.Hept}[name];
   return (val<=lim)?100:10;
+}
+
+// Thêm hàm tính WQI cho Độ đục và TSS
+function wqiTurbidity(val) {
+  if (val == null || isNaN(val)) return null;
+  const q = [100,75,50,25,1];
+  const t = BP.Turb;
+  if (val <= t[0]) return 100;
+  for (let i = 1; i < t.length; i++) {
+    if (val <= t[i]) {
+      const [x0, x1] = [t[i-1], t[i]], [y0, y1] = [q[i-1], q[i]];
+      return y0 + ((val-x0)/(x1-x0))*(y1-y0);
+    }
+  }
+  return 1;
+}
+function wqiTSS(val) {
+  if (val == null || isNaN(val)) return null;
+  const q = [100,75,50,25,1];
+  const t = BP.TSS;
+  if (val <= t[0]) return 100;
+  for (let i = 1; i < t.length; i++) {
+    if (val <= t[i]) {
+      const [x0, x1] = [t[i-1], t[i]], [y0, y1] = [q[i-1], q[i]];
+      return y0 + ((val-x0)/(x1-x0))*(y1-y0);
+    }
+  }
+  return 1;
 }
 
 /* === DO: tính theo từng đoạn Bảng 3 === */
@@ -189,6 +219,8 @@ function buildExplanation(ctx){
   if (ctx.NO3!=null) ivRows.push(explainBreakpointsRow('N–NO₃', ctx.NO3, BP.NO3));
   if (ctx.NO2!=null) ivRows.push(['N–NO₂', `\\(${ctx.NO2} ${ctx.NO2<=BP.NO2_only?'\\le':'>'} ${BP.NO2_only}\\Rightarrow \\text{WQI}\\approx ${fmt(ctx.WQI_NO2,1)}\\)`]);
   ivRows.push(explainBreakpointsRow('P–PO₄', ctx.PO4, BP.PO4));
+  if (ctx.TURB!=null) ivRows.push(explainBreakpointsRow('Độ đục (NTU)', ctx.TURB, BP.Turb));
+  if (ctx.TSS!=null) ivRows.push(explainBreakpointsRow('TSS (mg/L)', ctx.TSS, BP.TSS));
   rows.push(...ivRows.filter(Boolean));
 
   // II pesticides
@@ -247,7 +279,7 @@ function buildExplanation(ctx){
 }
 
 /* ========= Form helpers ========= */
-const FIELD_IDS=["ph","do","temp","bod","cod","toc","nh4","no3","no2","po4","coli","ecoli","as","cd","pb","cr6","cu","zn","hg","aldrin","bhc","dieldrin","ddts","hept","weighted"];
+const FIELD_IDS=["ph","do","temp","bod","cod","toc","nh4","no3","no2","po4","turb","tss","coli","ecoli","as","cd","pb","cr6","cu","zn","hg","aldrin","bhc","dieldrin","ddts","hept","weighted"];
 
 function readForm(){
   const data={};
@@ -278,6 +310,8 @@ function calc(){
   const WQI_NO3 = wqiGroupIV('NO3', val('no3'));
   const WQI_NO2 = wqiGroupIV('NO2', val('no2'));
   const WQI_PO4 = wqiGroupIV('PO4', val('po4'));
+  const WQI_TURB = wqiTurbidity(val('turb'));
+  const WQI_TSS = wqiTSS(val('tss'));
   const WQI_Coli  = (val('coli')!=null)? wqiFromBreakpoints(val('coli'), BP.Coli) : null;
   const WQI_Ecoli = (val('ecoli')!=null)? wqiFromBreakpoints(val('ecoli'), BP.Ecoli) : null;
   const WQI_As = wqiMetal('As', val('as')); const WQI_Cd = wqiMetal('Cd', val('cd')); const WQI_Pb = wqiMetal('Pb', val('pb'));
@@ -285,7 +319,7 @@ function calc(){
   const WQI_Ald = wqiPesticide('Aldrin', val('aldrin')); const WQI_BHC = wqiPesticide('BHC', val('bhc'));
   const WQI_Die = wqiPesticide('Dieldrin', val('dieldrin')); const WQI_DDT = wqiPesticide('DDTs', val('ddts')); const WQI_Hep = wqiPesticide('Hept', val('hept'));
 
-  const presentIV = [WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4].filter(good);
+  const presentIV = [WQI_DO,WQI_BOD,WQI_COD,WQI_TOC,WQI_NH4,WQI_NO3,WQI_NO2,WQI_PO4,WQI_TURB,WQI_TSS].filter(good);
   const presentV  = [WQI_Coli,WQI_Ecoli].filter(good);
 
   const agg = aggregateWQI({
@@ -326,7 +360,7 @@ function calc(){
   rows.push(`<tr><th colspan="2">Nhóm III (GM)</th></tr>`); add("As",WQI_As); add("Cd",WQI_Cd); add("Pb",WQI_Pb); add("Cr⁶⁺",WQI_Cr6); add("Cu",WQI_Cu); add("Zn",WQI_Zn); add("Hg",WQI_Hg);
   rows.push(`<tr><th colspan="2">Nhóm IV (TB)</th></tr>`);
   if (doRes) rows.push(`<tr><td>DO% bão hòa</td><td>${doRes.DOpct.toFixed(1)}% (DO_sat=${doRes.DOsat.toFixed(2)} mg/L)</td></tr>`);
-  add("WQI_DO",WQI_DO); add("BOD₅",WQI_BOD); add("COD",WQI_COD); add("TOC",WQI_TOC); add("N–NH₄",WQI_NH4); add("N–NO₃",WQI_NO3); add("N–NO₂",WQI_NO2); add("P–PO₄",WQI_PO4);
+  add("WQI_DO",WQI_DO); add("BOD₅",WQI_BOD); add("COD",WQI_COD); add("TOC",WQI_TOC); add("N–NH₄",WQI_NH4); add("N–NO₃",WQI_NO3); add("N–NO₂",WQI_NO2); add("P–PO₄",WQI_PO4); add("Độ đục (NTU)",WQI_TURB); add("TSS (mg/L)",WQI_TSS);
   rows.push(`<tr><th colspan="2">Nhóm V (TB)</th></tr>`); add("Coliform",WQI_Coli); add("E. coli",WQI_Ecoli);
   // tổng hợp IV/V/core để kiểm tra
   rows.push(`<tr><th colspan="2">Kiểm tra core</th></tr>`);
@@ -343,6 +377,7 @@ function calc(){
     ph: val('ph'), wqi_pH,
     doMgL: val('do'), tempC: val('temp'), doRes, WQI_DO,
     BOD:val('bod'), COD:val('cod'), TOC:val('toc'), NH4:val('nh4'), NO3:val('no3'), NO2:val('no2'), PO4:val('po4'),
+    TURB:val('turb'), TSS:val('tss'),
     WQI_NO2,
     aldrin:val('aldrin'), bhc:val('bhc'), dieldrin:val('dieldrin'), ddts:val('ddts'), hept:val('hept'),
     as:val('as'), cd:val('cd'), pb:val('pb'), cr6:val('cr6'), cu:val('cu'), zn:val('zn'), hg:val('hg'),
